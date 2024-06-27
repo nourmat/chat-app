@@ -1,0 +1,26 @@
+---
+:concurrency: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+staging:
+  :concurrency: 10
+production:
+  :concurrency: 10
+:queues:
+  - [default, 2] # Adding higher weight for default
+  - count_update
+
+tasks: &tasks
+  update_chat_count:
+    every: 1m
+    queue: count_update
+    description: "Write the utility of the job"
+    class: Application::UpdateChatCountJob
+
+  update_message_count:
+    every: 1m
+    queue: count_update
+    description: "Write the utility of the job"
+    class: Chat::UpdateMessageCountJob
+
+:scheduler:
+  :schedule:
+    <<: *tasks

@@ -1,0 +1,28 @@
+# == Schema Information
+#
+# Table name: chat_message_last_numbers
+#
+#  id                  :bigint           not null, primary key
+#  last_message_number :integer          default(0), not null
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  chat_id             :bigint           not null
+#
+# Indexes
+#
+#  index_chat_message_last_numbers_on_chat_id  (chat_id) UNIQUE
+#
+# Foreign Keys
+#
+#  fk_rails_...  (chat_id => chats.id)
+#
+
+# This model initially had no columns defined. If you add columns to the
+# model remove the "{}" from the fixture names and add the columns immediately
+# below each fixture, per the syntax in the comments below
+#
+one: {}
+# column: value
+#
+two: {}
+# column: value

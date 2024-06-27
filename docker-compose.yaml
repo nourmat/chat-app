@@ -1,0 +1,78 @@
+volumes:
+  my-db:
+
+services:
+  db:
+    container_name: db
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: app
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - 3306:3306
+    expose:
+      - 3306
+    volumes:
+      - my-db:/var/lib/mysql
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.18
+    volumes:
+      - my-db:/var/lib/elasticsearch
+    ports:
+      - 9200:9200
+    expose:
+      - 9200
+    environment: ['ES_JAVA_OPTS=-Xms2g -Xmx2g','bootstrap.memory_lock=true','discovery.type=single-node']
+  redis:
+    image: redis:latest
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+    expose:
+      - 6379
+    volumes:
+      - my-db:/var/lib/redis
+  sidekiq:
+    build: .
+    command: bundle exec sidekiq
+    depends_on:
+      - redis
+    volumes:
+      - .:/rails:cached
+    environment:
+      RAILS_ENV: development
+      REDIS_URL: redis://redis:6379/0
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      DB_USER: root
+      DB_NAME: app
+      DB_PASSWORD: password
+      DB_HOST: db
+      DB_PORT: 3306
+  app:
+    container_name: app
+#    stdin_open: true # docker run -i
+#    tty: true        # docker run -t
+    build: .
+    command: bundle exec rails s -p 3000 -b '0.0.0.0'
+    environment:
+      RAILS_ENV: development
+      REDIS_URL: redis://redis:6379/0
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      DB_USER: root
+      DB_NAME: app
+      DB_PASSWORD: password
+      DB_HOST: db
+      DB_PORT: 3306
+    ports:
+      - 3000:3000
+    expose:
+      - 3000
+    depends_on:
+      - elasticsearch
+      - db
+      - redis
+      - sidekiq
+    volumes:
+      - .:/rails
