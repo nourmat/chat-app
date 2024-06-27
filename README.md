@@ -1,38 +1,31 @@
-# README
+# Quick instructions on running this
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+```bash
+    git clone https://github.com/nourmat/chat-app.git
+    cd chat-app
+    docker compose up
+```
 
-Things you may want to cover:
+- We need to setup local db ONLY FIRST TIME
+
+From terminal in repo root directory
+```bash
+  docker exec app bundle exec bin/rails db:create
+  docker exec app bundle exec bin/rails db:migrate 
+  docker exec app bundle exec bin/rails db:seed
+```
+
+## Running Queues 
+We have two scheduled jobs check `config/sidekiq.yml`
+1. `update_chat_count` ==> `Application::UpdateChatCountJob` runs every 1 minute for testing purposes
+2. `update_message_count` ==> `Chat::UpdateMessageCountJob` runs every 1 minute for testing purposes
+
+## Other helper jobs
+1. `Message::CreateJob` ==> helps in creating the message async
+2. `Chat::CreateJob` ==> helps in creating the chat async
+
+You can use this collection to interact with the system, it contains all the endpoints and examples on how to use them
+[Link](https://www.postman.com/interstellar-firefly-890817/workspace/chat-app-rest-endpoints/collection/8250179-ec35d21f-03bb-4080-944d-f5b746dbbae7?action=share&creator=8250179)
 
 * Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
-
-
-Helping notes for installing mysql2 on mac
-https://dev.to/a_chris/how-to-install-the-mysql2-ruby-gem-on-a-mac-m1-4oip
-
-
-Fixing brew issue on mac
-https://stackoverflow.com/questions/75509911/fatal-couldnt-find-remote-ref-refs-heads-master
-
-
-https://gist.github.com/fernandoaleman/385aad12a18fe50cf5fd1e988e76fd63?permalink_comment_id=4877989#gistcomment-4877989
-
-Real fix
-https://stackoverflow.com/questions/71484444/mysql2-error-in-starting-rails-server-in-mac-m1
+This uses ruby 3.2.2
